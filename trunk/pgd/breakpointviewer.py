@@ -23,6 +23,7 @@
 #SOFTWARE.
 
 import gtk
+import gobject
 
 from components import PGDSlaveDelegate
 

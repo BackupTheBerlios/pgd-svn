@@ -24,17 +24,19 @@
 
 
 import gtk
+import pango
 import gobject
 
 from components import PGDSlaveDelegate
 
 from pida.utils.culebra import edit
+from gtksourceview import SourceView, SourceBuffer
 from icons import icons
 
-class Culebra(edit.CulebraView):
+class Culebra(SourceView):
 
     def __init__(self, parent):
-        edit.gtksourceview.SourceView.__init__(self)
+        SourceView.__init__(self)
         self.cb = parent
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK)
         self.connect('button-press-event', self.on_bp_event)
@@ -78,9 +80,16 @@ class Culebra(edit.CulebraView):
         buf = self.get_buffer()
         buf.create_marker(str(index), 'bp', titer)
 
+    def set_background_color(self, color):
+        self.modify_base(gtk.STATE_NORMAL, color)
+    
+    def set_font_color(self, color):
+        self.modify_text(gtk.STATE_NORMAL, color)
 
-    def set_buffer(self, buf):
-        edit.gtksourceview.SourceView.set_buffer(self, buf)
+    def set_font(self, fontstring):
+        font_desc = pango.FontDescription(fontstring)
+        if font_desc is not None:
+            self.modify_font(font_desc)
     
 class SourceViewer(PGDSlaveDelegate):
 

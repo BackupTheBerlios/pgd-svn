@@ -37,6 +37,8 @@ def set_stock_icons(st_req, st_path):
     theme = gtk.icon_theme_get_default()
     listed = theme.list_icons()
     for icon in icon_names:
+        if icon.startswith('.'):
+            continue
         iconname = icon.split('.', 1)[0]
         if iconname not in listed:
             iconres = '/'.join(['icons', icon])

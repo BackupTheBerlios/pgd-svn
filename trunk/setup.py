@@ -34,5 +34,6 @@ setup(name="pgd",
         'console_scripts': ["pgd = pgd.main:main"],
       },
       packages=['pgd', 'pgd.winpdb'],
-      data_files = [('icons', discover_data_files('icons', 'png'))],
+      data_files = [('icons', discover_data_files('icons', 'png')),
+                    ('pgd/winpdb', ['pgd/winpdb/rpdb2.py'])],
       )

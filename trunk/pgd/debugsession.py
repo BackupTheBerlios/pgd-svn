@@ -29,6 +29,22 @@ import sys
 from winpdb import rpdb2
 from console import Terminal
 
+
+def get_debugee_script_path():
+    import pkg_resources
+    req = pkg_resources.Requirement.parse('pgd')
+    try:
+        sfile = pkg_resources.resource_filename(req, 'pgd/winpdb/rpdb2.py')
+    except pkg_resources.DistributionNotFound:
+        sfile = os.path.join(
+            os.path.dirname(__file__),
+            'winpdb',
+            'rpdb2.py')
+        if sfile.endswith('c'):
+            sfile = sfile[:-1]
+    return sfile
+
+
 class SessionManagerInternal(rpdb2.CSessionManagerInternal):
     
     def _spawn_server(self, fchdir, ExpandedFilename, args, rid):
@@ -36,40 +52,22 @@ class SessionManagerInternal(rpdb2.CSessionManagerInternal):
         Start an OS console to act as server.
         What it does is to start rpdb again in a new console in server only mode.
         """
-
-        #if g_fScreen:
-        #    name = 'screen'
-        #else:
-        #    try:
-        ##        import terminalcommand
-        #        name = 'mac'
-        #    except:
-        #        name = os.name
-
-        #if name == 'nt' and g_fDebug:
-        #    name = 'nt_debug'
-        
-        #e = ['', ' --plaintext'][self.m_fAllowUnencrypted]
-        #r = ['', ' --remote'][self.m_fRemote]
-        #c = ['', ' --chdir'][fchdir]
-        #p = ['', ' --pwd="%s"' % (self.m_pwd, )][os.name == 'nt']
-        
-        print self.m_pwd
-        debugger = os.path.join(os.path.dirname(__file__), 'winpdb',
-                   'rpdb2.py')
-        if debugger[-1:] == 'c':
-            debugger = debugger[:-1]
-
-        #debug_prints = ['', ' --debug'][g_fDebug]    
-        
-
+        debugger = get_debugee_script_path()
+        baseargs = ['python', debugger, '--debugee', '--rid=%s' % rid]
+        if fchdir:
+            baseargs.append('--chdir')
+        if self.m_fAllowUnencrypted:
+            baseargs.append('--plaintext')
+        if self.m_fRemote:
+            baseargs.append('--remote')
+        if os.name == 'nt':
+            baseargs.append('--pwd=%s' % self.m_pwd)
+        if 'PGD_DEBUG' in os.environ:
+            baseargs.append('--debug')
+        baseargs.append(ExpandedFilename)
+        cmdargs = baseargs + args.split()
         python_exec = sys.executable
-        cmdargs = ['python', debugger,
-                  '--debugee', '--chdir',# '--plaintext',
-                  '--rid=%s' % rid, ExpandedFilename]
-        #options = '"%s"%s --debugee%s%s%s%s --rid=%s "%s" %s' % (debugger, debug_prints, p, e, r, c, rid, ExpandedFilename, args)
         self.terminal.fork_command(python_exec, cmdargs)
-        print 'forked', cmdargs
         
 
 class SessionManager(rpdb2.CSessionManager):
