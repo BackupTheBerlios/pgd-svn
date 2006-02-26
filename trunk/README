@@ -1,0 +1,67 @@
+==========
+PGD README
+==========
+
+
+Introduction
+------------
+
+PGD is the Python Graphical Debugger. It is essentially a PyGTK front-end to
+the rpdb2 debugger (under GPL license).
+
+
+Requirements
+------------
+
+You will require:
+
+ * Python 2.4 (http://python.org/)
+ * PyGTK 2.6 (http://pygtk.org/)
+ * Kiwi (http://kiwi.async.br/)
+ * Setuptools (http://peak.telecommunity.com/DevCenter/setuptools)
+ * GTKSourceView and Python bindings
+
+
+Installation
+------------
+
+(You may skip this step if you wish to run directly from source)
+
+In the top-level pgd directory, issue::
+
+    python setup.py install
+
+(You may require superuser access)
+
+
+Running
+-------
+
+Installed - Issue the command::
+    
+    pgd [scriptname]
+
+From Source - Run the script::
+
+    python run-pgd.py [scriptname]
+
+(Where scriptname is the optional python script to launch and debug on
+startup)
+
+
+Bugs
+----
+
+We love bugs. Please report them with an email to aafshar@gmail.com (until we
+deserve a real bug tracker).
+
+
+Thanks
+------
+
+... and have a nice day,
+
+Ali Afshar (author)
+aafshar@gmail.com 
+
+  
