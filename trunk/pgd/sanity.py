@@ -39,26 +39,19 @@ import sys
 
 
 def console_exit(msg, msg2='', e=None):
-    """Exit with a message then raise any exception that called us."""
+    """
+    Exit with a message then raise any exception that called us.
+    """
     sys.stderr.write('FATAL: %s\n%s\n' % (msg, msg2))
     if e is not None:
         raise e
     sys.exit(1)
 
 
-try:
-    import gtk
-    import gobject
-    gtk.threads_init()
-except ImportError, e:
-    msg = 'Missing Dependency: PyGTK'
-    msg2 = ('PyGTK 2.6 is required to run pgd. '
-           'Please visit http://www.pygtk.org/.')
-    console_exit(msg, msg2, e)
-
-
 def gui_exit(msg, msg2, url='', e=None):
-    """Exit with a GUI message then raise any exception that called us."""
+    """
+    Exit with a GUI message then raise any exception that called us.
+    """
     import hig
     d = hig.dialog_error(
             title='Python Graphical Debugger',
@@ -69,6 +62,20 @@ def gui_exit(msg, msg2, url='', e=None):
     console_exit(msg, msg2, e)
 
 
+# PyGTK
+try:
+    import gtk
+    import gobject
+    # this maybe should be somewhere else
+    gtk.threads_init()
+except ImportError, e:
+    msg = 'Missing Dependency: PyGTK'
+    msg2 = ('PyGTK 2.6 is required to run pgd. '
+           'Please visit http://www.pygtk.org/.')
+    console_exit(msg, msg2, e)
+
+
+# Setuptools
 try:
     import setuptools
     del setuptools
@@ -79,6 +86,7 @@ except ImportError, e:
     gui_exit(msg, msg2, url, e)
 
 
+# Kiwi
 try:
     import kiwi
     del kiwi
@@ -87,5 +95,4 @@ except ImportError, e:
     msg2 = 'Kiwi is required to run pgd.'
     url = 'http://kiwi.async.br/'
     gui_exit(msg, msg2, url, e)
-
 
