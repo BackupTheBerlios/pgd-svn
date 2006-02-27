@@ -31,7 +31,12 @@ from kiwiviews import PythonDelegate
 from icons import icons
 
 
+class NiceNotebook(gtk.Notebook):
 
+    def __init__(self):
+        super(NiceNotebook, self).__init__()
+        self.set_property('homogeneous', True)
+    
 
     
 class MainWindow(PythonDelegate):
@@ -60,11 +65,11 @@ class MainWindow(PythonDelegate):
         sp = gtk.VPaned()
         sp.set_position(200)
         vb.pack2(sp)
-        pb = gtk.Notebook()
+        pb = NiceNotebook()
         sp.pack1(pb, resize=True)
         sh = self.add_widget('stack_holder', gtk.EventBox())
         pb.append_page(sh, tab_label=gtk.Label('Stack Viewer'))
-        pb2 = gtk.Notebook()
+        pb2 = NiceNotebook()
         sp.pack2(pb2)
         sh = self.add_widget('breaks_holder', gtk.EventBox())
         pb2.append_page(sh, tab_label=gtk.Label('Breakpoints'))
@@ -74,7 +79,7 @@ class MainWindow(PythonDelegate):
         hp.pack2(vb2)
         sv = self.add_widget('source_holder', gtk.EventBox())
         vb2.pack1(sv)
-        nb = gtk.Notebook()
+        nb = NiceNotebook()
         vb2.pack2(nb)
         vb2.set_position(300)
         th = self.add_widget('term_holder', gtk.EventBox())
