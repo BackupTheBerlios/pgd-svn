@@ -1,0 +1,7 @@
+
+include COPYING
+include README
+include setup.py
+include run-pgd.py
+recursive-include pgd *.py
+recursive-include icons *.png
