@@ -23,15 +23,58 @@
 #SOFTWARE.
 
 
-
-
-import sys
 import os
+import sys
 
-import gtk
-import gobject
 
-gtk.threads_init()
+def exit(msg, msg2='', e=None):
+    sys.stderr.write('FATAL: %s\n%s\n' % (msg, msg2))
+    if e is not None:
+        raise e
+    sys.exit(1)
+
+
+try:
+    import gtk
+    import gobject
+    gtk.threads_init()
+except ImportError, e:
+    msg = 'Missing Dependency: PyGTK'
+    msg = ('PyGTK 2.6 is required to run pgd. '
+           'Please visit http://www.pygtk.org/.')
+    exit(msg, e)
+
+
+def gui_exit(msg, msg2, url='', e=None):
+    import hig
+    d = hig.dialog_error(
+            title='Python Graphical Debugger',
+            primary_text=msg,
+            secondary_text=('<span color="#903030"><i><b>%s</b></i></span>'
+                            '\n\n%s' % (msg2, url))
+        )
+    exit(msg, msg2, e)
+
+
+try:
+    import setuptools
+    del setuptools
+except ImportError, e:
+    msg = 'Setuptools missing'
+    msg2 = 'Setuptools is required to run pgd.'
+    url = 'http://peak.telecommunity.com/DevCenter/setuptools'
+    gui_exit(msg, msg2, url, e)
+
+
+try:
+    import kiwi
+    del kiwi
+except ImportError, e:
+    msg = 'Kiwi missing'
+    msg2 = 'Kiwi is required to run pgd.'
+    url = 'http://kiwi.async.br/'
+    gui_exit(msg, msg2, url, e)
+
 
 import debugsession
 from console import Console
