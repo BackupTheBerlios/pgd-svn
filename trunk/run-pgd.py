@@ -2,7 +2,6 @@
 
 # -*- coding: utf-8 -*- 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
-# $Id: setup.py 526 2005-08-16 18:09:12Z aafshar $
 
 # Copyright (c) 2006 Ali Afshar
 
