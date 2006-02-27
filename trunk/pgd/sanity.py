@@ -23,11 +23,23 @@
 #SOFTWARE.
 
 
+"""
+Sanity checking for PGD
+
+This module checks for required components, and fails with a message when they
+are missing. We have identified as required components:
+
+ * PyGTK
+ * Setuptools
+ * Kiwi
+"""
+
 import os
 import sys
 
 
 def exit(msg, msg2='', e=None):
+    """Exit with a message then raise any exception that called us."""
     sys.stderr.write('FATAL: %s\n%s\n' % (msg, msg2))
     if e is not None:
         raise e
@@ -46,6 +58,7 @@ except ImportError, e:
 
 
 def gui_exit(msg, msg2, url='', e=None):
+    """Exit with a GUI message then raise any exception that called us."""
     import hig
     d = hig.dialog_error(
             title='Python Graphical Debugger',
