@@ -118,37 +118,3 @@ class BreakpointViewer(PGDSlaveDelegate):
             func = self.session_manager.enable_breakpoint
         gobject.idle_add(func, [val.key], False)
             
-
-            
-        
-
-    def toggle_breakpoint(self):
-        lineno = self.m_viewer.GetCurrentLine() + 1 
-        self.__toggle_breakpoint(lineno)        
-        
-    def __toggle_breakpoint(self, lineno):
-        bpl = self.m_session_manager.get_breakpoints()
-        id = self.m_breakpoint_lines.get(lineno, None)
-        if id != None:
-            bp = bpl.get(id, None)
-            
-        if (id == None) or (bp == None):
-            self.job_post(self.job_set_breakpoint, (self.m_cur_filename, lineno))
-            return
-
-    def job_set_breakpoint(self, filename, lineno):
-        try:
-            self.m_session_manager.set_breakpoint(filename, '', lineno, True, '')
-        except (socket.error, rpdb2.CConnectionException):
-            pass
-        except rpdb2.BadArgument:
-            pass
-        
-    def job_delete_breakpoint(self, id):
-        try:
-            self.m_session_manager.delete_breakpoint([id], False)
-        except (socket.error, rpdb2.CConnectionException):
-            pass
-        except rpdb2.BadArgument:
-            pass
-
