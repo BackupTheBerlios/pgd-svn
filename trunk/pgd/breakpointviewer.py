@@ -54,32 +54,9 @@ class Breakpoint(object):
 
 class BreakpointViewer(PGDSlaveDelegate):
 
-    def create_toplevel_widget(self):
-        vb = gtk.VBox()
-        t = self.add_widget('tree', Tree())
-        t.set_property('markup-format-string',
-                       '<b>[%(key)s]</b>'
-                       '<span color="%(color)s">'
-                       '<tt> %(filename)s:%(linenumber)s </tt>'
-                       '</span><i>%(disabled_text)s</i>')
-        vb.pack_start(t)
-        return vb
-
     def attach_slaves(self):
         self.main_window.attach_slave('breaks_holder', self)
         self.show_all()
-
-    def _get_all_index(self, indices):
-        mod = self.tree.model
-        for index in indices:
-            for row in mod:
-                if row[0] == str(index):
-                    yield index, row
-        
-    def _get_all_bps(self, indices):
-        for index, row in self._get_all_index(indices):
-            value = row[1].value
-            yield index, value
 
     def update_bp(self, action, index, indices, filename, linenumber):
         mod = self.tree.model
@@ -95,12 +72,11 @@ class BreakpointViewer(PGDSlaveDelegate):
                 self.tree.add_item(bp)
                 self.app.source.set_breakpoint(index, filename, linenumber)
         elif action == 'remove':
-            for i, row in self._get_all_index(indices):
+            for i, row in self._get_all_index_rows(indices):
                 val = row[1].value
                 filename = val.filename
                 self.app.source.remove_breakpoint(i, filename)
                 mod.remove(row.iter)
-
         elif action == 'disable':
             for i, value in self._get_all_bps(indices):
                 value.enabled = False
@@ -110,11 +86,73 @@ class BreakpointViewer(PGDSlaveDelegate):
                 value.enabled = True
                 value.reset_markup()
 
-    def on_tree__double_clicked(self, tv, item):
-        val = item.value
-        if val.enabled:
+    def create_toplevel_widget(self):
+        vb = gtk.VBox()
+        t = self.add_widget('tree', Tree())
+        t.set_property('markup-format-string',
+                       '<b>[%(key)s]</b>'
+                       '<span color="%(color)s">'
+                       '<tt> %(filename)s:%(linenumber)s </tt>'
+                       '</span><i>%(disabled_text)s</i>')
+        vb.pack_start(t)
+        self._create_actions()
+        return vb
+
+    def _create_actions(self):
+        self._current = None
+        self.add_widget('dis_act', gtk.Action('Disable', 'Disable',
+            'Disable this breakpoint', gtk.STOCK_NO))
+        self.add_widget('en_act', gtk.Action('Enable', 'Enable',
+            'Enable this breakpoint', gtk.STOCK_YES))
+
+    def _create_popup(self, bp, event):
+        self._current = bp
+        if not bp: return
+        menu = gtk.Menu()
+        mi = self.dis_act.create_menu_item()
+        menu.add(mi)
+        self.dis_act.set_sensitive(bp.enabled)
+        mi = self.en_act.create_menu_item()
+        menu.add(mi)
+        self.en_act.set_sensitive(not bp.enabled)
+        menu.show_all()
+        menu.popup(None, None, None, event.button, event.time)
+
+    def _get_all_index_rows(self, indices):
+        mod = self.tree.model
+        for index in indices:
+            for row in mod:
+                if row[0] == str(index):
+                    yield index, row
+        
+    def _get_all_bps(self, indices):
+        for index, row in self._get_all_index_rows(indices):
+            value = row[1].value
+            yield index, value
+
+    def _set_breakpoint_enabled_status(self, bp, enabled):
+        if not enabled:
             func = self.session_manager.disable_breakpoint
         else:
             func = self.session_manager.enable_breakpoint
-        gobject.idle_add(func, [val.key], False)
-            
+        gobject.idle_add(func, [bp.key], False)
+
+    def on_tree__double_clicked(self, tv, item):
+        if item:
+            val = item.value
+            self._set_breakpoint_enabled_status(val, not val.enabled)
+
+    def on_tree__right_clicked(self, tv, item, event):
+        if item is None:
+            val = item
+        else:
+            val = item.value
+        self._create_popup(val, event)
+        
+    def on_dis_act__activate(self, action):
+        print 'disabled'
+        self._set_breakpoint_enabled_status(self._current, False)
+
+    def on_en_act__activate(self, action):
+        self._set_breakpoint_enabled_status(self._current, True)
+
