@@ -27,7 +27,7 @@ import gtk
 import cgi
 
 from components import PGDSlaveDelegate
-
+from mainwindow import NiceNotebook
 from tree import Tree
 
 
@@ -114,7 +114,7 @@ class AllNamespaceViewer(PGDSlaveDelegate):
         self.local_viewer = LocalViewer(self.app)
         self.global_viewer = GlobalViewer(self.app)
         tl = gtk.VBox()
-        nb = gtk.Notebook()
+        nb = NiceNotebook()
         tl.pack_start(nb)
         nb.set_tab_pos(gtk.POS_TOP)
         lh = self.add_widget('globals_holder', gtk.EventBox())
@@ -126,10 +126,7 @@ class AllNamespaceViewer(PGDSlaveDelegate):
         return tl
 
     def _create_big_label(self, text):
-        l = gtk.Label()
-        mu = ('<b>%s</b>'
-              % cgi.escape(text))
-        l.set_markup(mu)
+        l = gtk.Label(text)
         return l
 
     def attach_slaves(self):
