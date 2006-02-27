@@ -27,24 +27,24 @@ Terminals, and command console.
 
 from Queue import Queue
 
-from components import PGDSlaveDelegate
-
 import vte
 import gtk
 import gobject
+
 from winpdb.rpdb2 import CConsole
+from components import PGDSlaveDelegate
+
 
 class Terminal(PGDSlaveDelegate):
-
+    """
+    Holds a terminal emulator widget
+    """
     def create_toplevel_widget(self):
         t = self.add_widget('terminal', vte.Terminal())
         t.set_size_request(0, 0)
         self._readbuf = ''
-        self.print_prompt()
         return t
 
-    def print_prompt(self):
-        self.feed('')
 
     def feed(self, text):
         text = text.replace('\n', '\r\n')
@@ -54,7 +54,9 @@ class Terminal(PGDSlaveDelegate):
 
 
 class InputTerminal(Terminal):
-
+    """
+    Holds a terminal emulator widget you can type into
+    """
     def create_toplevel_widget(self):
         t = gtk.VBox()
         t.pack_start(super(InputTerminal, self).create_toplevel_widget())
@@ -71,11 +73,13 @@ class InputTerminal(Terminal):
             self._readbuf = lines.pop()
             for line in lines:
                 self.commiter.received_line(line)
-                self.print_prompt()
 
 
 class Console(object):
-    
+    """
+    The command console
+    """    
+
     def __init__(self, app):
         self.app = app
         self.main_window = app.main_window
@@ -85,6 +89,12 @@ class Console(object):
         self.delegate = self._create_view()
 
     def _create_console(self):
+        """
+        Create and return an rpdb2 console.
+
+        We bind the console's io to ourselves, and give it our session
+        manager.
+        """
         console = CConsole(self.session_manager,
                                  stdin = self,
                                  stdout = self,
@@ -92,12 +102,10 @@ class Console(object):
         return console
 
     def start(self):
-        print 'starting console'
         self.console.start()
 
     def write(self, text):
         self.feed(text)
-        self.delegate.print_prompt()
     
     def feed(self, text):
         self.delegate.feed(text)
