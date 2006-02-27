@@ -26,16 +26,49 @@ import gtk
 import pango
 import gobject
 
+from gtksourceview import SourceView
+from gtksourceview import SourceBuffer
+from gtksourceview import SourceLanguagesManager
+
+from icons import icons
 from components import PGDSlaveDelegate
 
-from pida.utils.culebra import edit
-from gtksourceview import SourceView, SourceBuffer
-from icons import icons
 
-class Culebra(SourceView):
+class SVBuffer(SourceBuffer):
 
-    def __init__(self, parent):
-        SourceView.__init__(self)
+    def __init__(self, filename, encoding='utf-8'):
+        SourceBuffer.__init__(self)
+        self.filename = filename
+        self.encoding = encoding
+        lm = SourceLanguagesManager()
+        self.languages_manager = lm
+        language = lm.get_language_from_mime_type("text/x-python")
+        self.set_highlight(True)
+        self.set_language(language)
+
+    def load_from_file(self):
+        """
+        Loads the contents of a file to this buffer.
+        """
+        fd = open(self.filename)
+        try:
+            self.begin_not_undoable_action()
+            self.set_text("")
+            data = fd.read()
+            data = unicode(data, self.encoding)
+            self.set_text(data)
+            self.set_modified(False)
+            self.place_cursor(self.get_start_iter())
+            self.end_not_undoable_action()
+        finally:
+            fd.close()
+
+
+class SVView(SourceView):
+
+    def __init__(self, parent, filename):
+        buf = SVBuffer(filename)
+        SourceView.__init__(self, buf)
         self.cb = parent
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK)
         self.connect('button-press-event', self.on_bp_event)
@@ -50,11 +83,7 @@ class Culebra(SourceView):
         self.set_insert_spaces_instead_of_tabs(True)
         self.set_marker_pixbuf('bp', icons.get(gtk.STOCK_STOP))
         self.set_font('Monospace 9')
-        
-        #self.search_bar = SearchBar(self, action_group)
-        #self.replace_bar = ReplaceBar(self, self.search_bar, action_group)
-        #self.set_action_group(action_group)
-        edit.make_source_view_indentable(self)
+        buf.load_from_file()
 
     def on_bp_event(self, view, event):
         buf = self.get_buffer()
@@ -66,8 +95,7 @@ class Culebra(SourceView):
             eiter.forward_to_line_end()
             marks = buf.get_markers_in_region(titer, eiter)
             linenumber = titer.get_line() + 1
-            filename = buf.get_filename()
-            print linenumber
+            filename = buf.filename
             if len(marks):
                 index = int(marks[0].get_name())
                 self.cb.session_manager.delete_breakpoint([index], False)
@@ -90,6 +118,7 @@ class Culebra(SourceView):
         if font_desc is not None:
             self.modify_font(font_desc)
     
+
 class SourceViewer(PGDSlaveDelegate):
 
     def create_toplevel_widget(self):
@@ -120,7 +149,6 @@ class SourceViewer(PGDSlaveDelegate):
 
     def _open_file(self, filename):
         vbox, editor = self.create_widget(filename)
-                       #self.create_action_group())
         self.notebook.append_page(vbox)
         return editor, vbox
 
@@ -131,11 +159,7 @@ class SourceViewer(PGDSlaveDelegate):
         scroller.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         scroller.show()
         vbox.add(scroller)
-        editor = view = Culebra(self)
-        buff = edit.CulebraBuffer(filename)
-        if filename is not None:
-            buff.load_from_file()
-        view.set_buffer(buff)
+        editor = SVView(self, filename)
         editor.set_name("editor")
         editor.show()
         scroller.add(editor)
@@ -155,7 +179,6 @@ class SourceViewer(PGDSlaveDelegate):
             editor, vbox = self._files[filename]
             buf = editor.get_buffer()
             buf.delete_marker(buf.get_marker(str(index)))
-
 
     def _goto_line(self, editor, linenumber):
         view = editor
