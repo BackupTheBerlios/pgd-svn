@@ -21,13 +21,17 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+"""
+Terminals, and command console.
+"""
+
+from Queue import Queue
 
 from components import PGDSlaveDelegate
 
 import vte
 import gtk
 import gobject
-from Queue import Queue
 from winpdb.rpdb2 import CConsole
 
 class Terminal(PGDSlaveDelegate):

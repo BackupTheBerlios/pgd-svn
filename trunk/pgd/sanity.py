@@ -107,6 +107,7 @@ except ImportError, e:
     url = 'http://ftp.gnome.org/pub/GNOME/sources/gnome-python-desktop/'
     gui_exit(msg, msg2, url, e)
 
+
 #VTE
 try:
     from vte import Terminal
@@ -116,7 +117,7 @@ except ImportError, e:
     msg2 = 'The V Terminal Emulator (VTE) widget is required.'
     url = ('Please install it.\n\n'
            'FreeBSD users: unlucky, your port maintainer '
-           'refuses patches, and has hardcoded the Makefile '
+           'has hardcoded the Makefile '
            'to not make the python bindings. You can do it yourselves '
            'rather easily with a little sniff around.')
     gui_exit(msg, msg2, url, e)
