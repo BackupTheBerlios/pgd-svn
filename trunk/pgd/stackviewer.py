@@ -21,13 +21,13 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
+import os
 
 import gtk
 
 from components import PGDSlaveDelegate
 
-from tree import IconTree
+from tree import Tree
 from icons import icons
 
 class StackItem(object):
@@ -35,6 +35,8 @@ class StackItem(object):
     def __init__(self, index, filename, linenumber, function, line):
         self.key = index
         self.filename = filename
+        self.basename = os.path.basename(filename)
+        self.dirname = os.path.dirname(filename)
         self.linenumber = linenumber
         self.funcion = function
         self.line = line
@@ -44,12 +46,12 @@ class StackItem(object):
         if self.active:
             return '#000000'
         else:
-            return '#000000'
+            return '#909090'
     color = property(get_color)
 
     def get_icon(self):
         if self.active:
-            return icons.get(gtk.STOCK_NO, 22)
+            return None#icons.get(gtk.STOCK_EXECUTE, 16)
         else:
             return None
 
@@ -60,11 +62,13 @@ class StackViewer(PGDSlaveDelegate):
 
     def create_toplevel_widget(self):
         toplevel = gtk.VBox()
-        t = self.add_widget('tree', IconTree())
+        t = self.add_widget('tree', Tree())
         t.set_property('markup-format-string',
                        '<span color="%(color)s">'
-                       '<tt><b>%(filename)s %(linenumber)s</b>\n'
-                       '%(line)s</tt></span>')
+                       '<b>%(basename)s:%(linenumber)s</b> '
+                       '<i><small>%(dirname)s</small></i>\n'
+                       '<tt>%(line)s</tt></span>')
+        t.view.set_expander_column(t.view.get_column(1))
         toplevel.pack_start(t)
         return toplevel
 
