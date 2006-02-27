@@ -36,13 +36,13 @@ def exit(msg, msg2='', e=None):
 
 try:
     import gtk
-    import gobject
+    import gobjects
     gtk.threads_init()
 except ImportError, e:
     msg = 'Missing Dependency: PyGTK'
-    msg = ('PyGTK 2.6 is required to run pgd. '
+    msg2 = ('PyGTK 2.6 is required to run pgd. '
            'Please visit http://www.pygtk.org/.')
-    exit(msg, e)
+    exit(msg, msg2, e)
 
 
 def gui_exit(msg, msg2, url='', e=None):
