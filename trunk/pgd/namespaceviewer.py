@@ -44,6 +44,7 @@ class NamespaceItem(object):
     
     def get_markup(self):
         if self.is_value:
+            self.name = '.'
             mu = cgi.escape(self.srepr)
         else:
             n = cgi.escape(self.name)
