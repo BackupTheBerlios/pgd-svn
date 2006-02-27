@@ -36,7 +36,7 @@ def exit(msg, msg2='', e=None):
 
 try:
     import gtk
-    import gobjects
+    import gobject
     gtk.threads_init()
 except ImportError, e:
     msg = 'Missing Dependency: PyGTK'
