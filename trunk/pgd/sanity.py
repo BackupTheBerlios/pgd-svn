@@ -96,3 +96,28 @@ except ImportError, e:
     url = 'http://kiwi.async.br/'
     gui_exit(msg, msg2, url, e)
 
+
+#GTKSourceView
+try:
+    from gtksourceview import SourceView
+    del SourceView
+except ImportError, e:
+    msg = 'GTKSourceView missing'
+    msg2 = 'GTKSourceView is required to view source code'
+    url = 'http://ftp.gnome.org/pub/GNOME/sources/gnome-python-desktop/'
+    gui_exit(msg, msg2, url, e)
+
+#VTE
+try:
+    from vte import Terminal
+    del Terminal
+except ImportError, e:
+    msg = 'VTE missing'
+    msg2 = 'The V Terminal Emulator (VTE) widget is required.'
+    url = ('Please install it.\n\n'
+           'FreeBSD users: unlucky, your port maintainer '
+           'refuses patches, and has hardcoded the Makefile '
+           'to not make the python bindings. You can do it yourselves '
+           'rather easily with a little sniff around.')
+    gui_exit(msg, msg2, url, e)
+
