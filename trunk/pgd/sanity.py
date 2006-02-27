@@ -34,11 +34,11 @@ are missing. We have identified as required components:
  * Kiwi
 """
 
-import os
+
 import sys
 
 
-def exit(msg, msg2='', e=None):
+def console_exit(msg, msg2='', e=None):
     """Exit with a message then raise any exception that called us."""
     sys.stderr.write('FATAL: %s\n%s\n' % (msg, msg2))
     if e is not None:
@@ -54,7 +54,7 @@ except ImportError, e:
     msg = 'Missing Dependency: PyGTK'
     msg2 = ('PyGTK 2.6 is required to run pgd. '
            'Please visit http://www.pygtk.org/.')
-    exit(msg, msg2, e)
+    console_exit(msg, msg2, e)
 
 
 def gui_exit(msg, msg2, url='', e=None):
@@ -66,7 +66,7 @@ def gui_exit(msg, msg2, url='', e=None):
             secondary_text=('<span color="#903030"><i><b>%s</b></i></span>'
                             '\n\n%s' % (msg2, url))
         )
-    exit(msg, msg2, e)
+    console_exit(msg, msg2, e)
 
 
 try:
