@@ -27,15 +27,9 @@
 The Python Graphical Debugger is a GTK front end to the rpdb2 debugger.
 """
 
+
 import os
 from setuptools import setup
-
-
-try:
-    import gobject
-    import gtk
-except ImportError:
-    raise SystemExit("PDG requires PyGTK 2.8 or higher")
 
 
 def discover_data_files(directory_name, extension):
