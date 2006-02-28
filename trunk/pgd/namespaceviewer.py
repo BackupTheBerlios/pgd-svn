@@ -28,8 +28,34 @@ import cgi
 
 from components import PGDSlaveDelegate
 from mainwindow import NiceNotebook
-from tree import Tree
+from tree import IconTree
+from icons import icons
 
+type_icons = {
+    'str': icons.get('nsstring', 16),
+    'type': icons.get('nsclass', 16),
+    'other': icons.get('nsother', 16),
+    'int': icons.get('nsint', 16),
+    'float': icons.get('nsfloat', 16),
+    'list': icons.get('nslist', 16),
+    'tuple': icons.get('nstuple', 16),
+    'dict': icons.get('nsdict', 16),
+    'NoneType': icons.get('nsnone', 16),
+    'module': icons.get('nsmodule', 16),
+    'bool': icons.get('nsbool', 16),
+    'builtin_function_or_method': icons.get('nsfunc', 16),
+    'function': icons.get('nsfunc', 16)
+    }
+
+nochildren = ['NoneType', 'str', 'int', 'float', 'long', 'bool']
+            
+reprable = nochildren + ['dict', 'list', 'tuple']
+    
+
+def get_pixbuf(nstype):
+    if nstype not in type_icons:
+        nstype = 'other'
+    return type_icons[nstype]
 
 class NamespaceItem(object):
 
@@ -50,13 +76,21 @@ class NamespaceItem(object):
             n = cgi.escape(self.name)
             t = cgi.escape(self.stype)
             mu = ('<tt><b>%s</b>  </tt>'
-                  '<span color="#903030"><i>%s</i></span>'
+                  '<span color="#903030"><i><small>%s</small></i></span>'
                   % (n, t))
+            if self.stype in reprable:
+                v = '<tt> %s</tt>' % cgi.escape(self.srepr)
+                mu = ''.join([mu, v])
         return mu
     markup = property(get_markup)
 
+    def get_pixbuf(self):
+        if self.is_value:
+            return None
+        return get_pixbuf(self.stype)
+    pixbuf = property(get_pixbuf)
 
-class NamespaceTree(Tree):
+class NamespaceTree(IconTree):
 
     SORT_CONTROLS = True
     SORT_AVAILABLE = [('Name', 'name'),
@@ -83,10 +117,11 @@ class NamespaceViewer(PGDSlaveDelegate):
         ns = self.session_manager.get_namespace(el, filt)
         for sn in ns[0]['subnodes']:
             item = NamespaceItem(sn)
-            valitem = NamespaceItem(sn)
-            valitem.is_value = True
             piter = self.tree.add_item(item, parent=parent)
-            self.tree.add_item(valitem, parent=piter)
+            if item.stype not in nochildren:
+                valitem = NamespaceItem(sn)
+                valitem.is_value = True
+                self.tree.add_item(valitem, parent=piter)
 
     def on_tree_view__row_expanded(self, tv, titer, path):
         value = self.tree.get(titer, 1).value

@@ -45,7 +45,7 @@ def set_stock_icons(st_req, st_path):
             pixbuf = gtk.gdk.pixbuf_new_from_file(iconpath)
             iconset = gtk.IconSet(pixbuf)
             iconfactory.add(iconname, iconset)
-            gtk.icon_theme_add_builtin_icon(iconname, 128, pixbuf)
+            gtk.icon_theme_add_builtin_icon(iconname, 24, pixbuf)
     iconfactory.add_default()
     return theme, iconfactory
 
