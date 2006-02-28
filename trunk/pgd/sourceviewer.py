@@ -81,7 +81,7 @@ class SVView(SourceView):
         self.set_smart_home_end(True)
         self.set_highlight_current_line(True)
         self.set_insert_spaces_instead_of_tabs(True)
-        self.set_marker_pixbuf('bp', icons.get(gtk.STOCK_STOP))
+        self.set_marker_pixbuf('bp', icons.get('stock_breakpoint'))
         self.set_font('Monospace 9')
         buf.load_from_file()
 
